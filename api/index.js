@@ -1,4 +1,5 @@
 const express = require('express');
+require('express-async-errors');
 const env = require('./libs/env');
 const redisMiddleware = require('./middleware/redis');
 const { getAddressTransactions } = require('./controller/txs');
@@ -25,6 +26,8 @@ ${JSON.stringify(env, null, 2)}
   })
   .get('/api/txs', getAddressTransactions);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Blocklet app listening on port ${port}`);
 });
+
+module.exports = { app, server };

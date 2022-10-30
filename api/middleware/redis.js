@@ -1,9 +1,6 @@
-const redis = require('redis');
+const { redis } = require('../libs/db');
 
-const client = redis.createClient(6379, '127.0.0.1');
-client.connect();
-
-const EXPIRE_TIME = 3;
+const EXPIRE_TIME = 10;
 
 module.exports = async (req, res, next) => {
   // Attach redis to request
@@ -12,7 +9,7 @@ module.exports = async (req, res, next) => {
     get: (key) =>
       new Promise((resolve) => {
         try {
-          client.get(key).then(resolve);
+          redis.get(key).then(resolve);
         } catch (err) {
           console.error('ctx redis get err: ', err);
           resolve(null);
@@ -21,7 +18,7 @@ module.exports = async (req, res, next) => {
     set: (key, value) =>
       new Promise((resolve) => {
         try {
-          client
+          redis
             .set(key, value, {
               EX: EXPIRE_TIME,
             })

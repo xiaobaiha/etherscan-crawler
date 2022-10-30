@@ -1,9 +1,9 @@
 const { getTransactions } = require('../service/bscscan');
+const logger = require('../libs/logger');
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PAGE_SIZE = 50;
 
-const reqKey = (query) => `${query.address}_${query.page}_${query.pageSize}`;
+const reqKey = (query) => `${query.address}_${query.page}`;
 
 const getQueryNumber = (param, defaultValue) => {
   if (!param) {
@@ -22,7 +22,6 @@ const formatQuery = (query) => {
   return {
     address: query.a,
     page: getQueryNumber(query.p, DEFAULT_PAGE),
-    pageSize: getQueryNumber(query.p, DEFAULT_PAGE_SIZE),
   };
 };
 
@@ -35,7 +34,7 @@ const getAddressTransactions = async (req, res) => {
   const cacheKey = reqKey(params);
   const redisContent = await req.ctx.redis.get(cacheKey);
   if (redisContent) {
-    console.log('Req match redis(', JSON.stringify(params), ').');
+    logger.log('Req match redis(', JSON.stringify(params), ').');
     res.end(redisContent);
   } else {
     const transactions = await getTransactions(params);
