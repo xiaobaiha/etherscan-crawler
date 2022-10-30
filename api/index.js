@@ -1,12 +1,17 @@
 const express = require('express');
 const env = require('./libs/env');
+const redisMiddleware = require('./middleware/redis');
+const { getAddressTransactions } = require('./controller/txs');
 
 const app = express();
 
 const port = process.env.BLOCKLET_PORT || process.env.PORT || 3030;
 
-app.get('/', (req, res) => {
-  res.send(`
+app.use(redisMiddleware);
+
+app
+  .get('/', (req, res) => {
+    res.send(`
 <div style="display:flex;flex-direction:column;align-items:center;padding:64px 0;">
 <h1 style="margin:64px 0;">
   <span style="display:inline-block;padding:8px 24px;background:#1dc1c7;color:#fff;">Blocklet</span>
@@ -17,7 +22,8 @@ ${JSON.stringify(env, null, 2)}
 </pre>
 </div>
   `);
-});
+  })
+  .get('/api/txs', getAddressTransactions);
 
 app.listen(port, () => {
   console.log(`Blocklet app listening on port ${port}`);
